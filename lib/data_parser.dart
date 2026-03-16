@@ -11,4 +11,12 @@ class DataParser {
     }
     return null;
   }
+
+  Map<String, dynamic>? pullCharacterInfo(Map<String, dynamic> participant) {
+    return {
+      'championName': participant['championName'],
+      'champLevel': participant['champLevel'],
+      'champExperience': participant['champExperience'],
+    };
+  }
 }

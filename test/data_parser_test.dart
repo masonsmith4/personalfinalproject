@@ -20,10 +20,10 @@ void main() {
     final player = identifier.searchPlayerId(playerData,
         'nvPdRr7ZMzx5uMWQ9Wj90K5KtekgFysWazHv6BTXScrt-5lDO6YXI-VzBpSkQT7q01aw-hq63nOR2A'
     );
-    final playerCharacter = identifier.pullCharacterInfo(player);
+    final playerCharacter = identifier.pullCharacterInfo(player!);
     expect(player, isNotNull);
     expect(playerCharacter, isNotNull);
-    expect(playerCharacter['championName'], 'Ornn');
+    expect(playerCharacter!['championName'], 'Ornn');
     expect(playerCharacter['champLevel'], 14);
     expect(playerCharacter['champExperience'], 12569);
   });
