@@ -10,4 +10,14 @@ void main() {
     expect(uri.path, contains('WombatBaby'));
     expect(uri.path, contains('NA2'));
   });
+
+  test('Builds the list of match ids', () {
+    final constructor = UrlBuilder();
+    final uri = constructor.buildMatchId('ThisisatestidIamjuststringingwordstogether'
+        'withnorealpurpose');
+    expect(uri.scheme, 'https');
+    expect(uri.host, 'americas.api.riotgames.com');
+    expect(uri.path, contains(
+        'ThisisatestidIamjuststringingwordstogetherwithnorealpurpose'));
+  });
 }
