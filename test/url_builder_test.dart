@@ -1,9 +1,9 @@
 import 'package:test/test.dart';
+import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/url_builder.dart';
 
 void main() {
   test('Builds URL for the PUUID', () {
     final constructor = UrlBuilder();
-    final uri = constructor.buildUrl();
     final uri = constructor.buildUrl('WombatBaby', 'NA2');
     expect(uri.scheme, 'https');
     expect(uri.host, 'americas.api.riotgames.com');
