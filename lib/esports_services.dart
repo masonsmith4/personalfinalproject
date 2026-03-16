@@ -6,6 +6,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class EsportsService {
   final _urlBuilder = UrlBuilder();
 
+  Map<String, String> get headers =>
+      {'X-Riot-Token': dotenv.env['RIOT_API_KEY'] ?? ''};
+
   String parseIdentification(String body) =>
       jsonDecode(body)['puuid'] as String;
 
