@@ -14,4 +14,8 @@ void main() {
         '["NA1_match001","NA1_match002","NA1_match003"]');
     expect(matches, equals(['NA1_match001', 'NA1_match002', 'NA1_match003']));
   });
+  test('parses match data from match response', () async {
+    final result = service.parseMatchData('{"info":{"participants":[]}}');
+    expect(result['info'], isNotNull);
+  });
 }
