@@ -9,4 +9,6 @@ class EsportsService {
   String parseIdentification(String body) =>
       jsonDecode(body)['puuid'] as String;
 
+  List<String> parseMatchList(String body) =>
+      List<String>.from(jsonDecode(body));
 }
