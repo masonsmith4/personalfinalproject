@@ -20,4 +20,12 @@ void main() {
     expect(uri.path, contains(
         'ThisisatestidIamjuststringingwordstogetherwithnorealpurpose'));
   });
+
+  test('Builds Url for the match data', () {
+    final constructor = UrlBuilder();
+    final uri = constructor.buildMatchUrl('NA1_gamethathasbeenplayed');
+    expect(uri.scheme, 'https');
+    expect(uri.host, 'americas.api.riotgames.com');
+    expect(uri.path, contains('NA1_gamethathasbeenplayed'));
+  });
 }
