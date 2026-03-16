@@ -13,4 +13,18 @@ void main() {
         equals('nvPdRr7ZMzx5uMWQ9Wj90K5KtekgFysWazHv6BTXScrt-5lDO6YXI-VzBpSkQT7q01aw-hq63nOR2A')
     );
   });
+
+  test("Gets the player's character info", () async {
+    final playerData = await File('test/sample_data.json').readAsString();
+    final identifier = DataParser();
+    final player = identifier.searchPlayerId(playerData,
+        'nvPdRr7ZMzx5uMWQ9Wj90K5KtekgFysWazHv6BTXScrt-5lDO6YXI-VzBpSkQT7q01aw-hq63nOR2A'
+    );
+    final playerCharacter = identifier.pullCharacterInfo(player);
+    expect(player, isNotNull);
+    expect(playerCharacter, isNotNull);
+    expect(playerCharacter['championName'], 'Ornn');
+    expect(playerCharacter['champLevel'], 14);
+    expect(playerCharacter['champExperience'], 12569);
+  });
 }
