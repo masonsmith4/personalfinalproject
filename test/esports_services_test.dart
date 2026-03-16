@@ -9,3 +9,4 @@ void main() {
         '{"puuid":"TestId46507","gameName":"WombatBaby","tagLine":"NA2"}');
     expect(puuid, equals('TestId46507'));
   });
+}
