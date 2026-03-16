@@ -42,12 +42,7 @@ class _EligibilityScreenState extends State<EligibilityScreen> {
   Map<String, dynamic>? _charInfo;
 
   Future<void> _lookup() async {
-    setState(() {
-      _loading = true;
-      _message = null;
-      _stats = null;
-      _charInfo = null;
-    });
+    setState(() { _loading = true; _message = null; _stats = null; _charInfo = null; });
 
     try {
       final puuid = await _service.requestIdentification(
@@ -59,13 +54,80 @@ class _EligibilityScreenState extends State<EligibilityScreen> {
       setState(() {
         _stats = _parser.pullGameStatistics(participant);
         _charInfo = _parser.pullCharacterInfo(participant);
-        _message =
-        'To enter the Spring Invitational, your KDA must be above 2.0.';
+        _message = 'To enter the Spring Invitational, your KDA must be above 2.0.';
       });
     } catch (e) {
       setState(() => _message = 'Error: $e');
     } finally {
       setState(() => _loading = false);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tournament Eligibility')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Try it with: WombatBaby #NA2',
+                style: TextStyle(color: Colors.black, fontSize: 13)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: 'Username'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _tagController,
+              decoration: const InputDecoration(labelText: 'Tag'),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loading ? null : _lookup,
+              child: _loading
+                  ? const CircularProgressIndicator()
+                  : const Text('Search Stats'),
+            ),
+            if (_message != null) ...[
+              const SizedBox(height: 24),
+              Text(_message!, style: const TextStyle(fontSize: 14, color: Colors.black)),
+            ],
+            if (_stats != null && _charInfo != null) ...[
+              const SizedBox(height: 16),
+              _StatRow('Champion', '${_charInfo!['championName']}'),
+              _StatRow('Champion Level', '${_charInfo!['champLevel']}'),
+              _StatRow('Champion XP', '${_charInfo!['champExperience']}'),
+              _StatRow('Kills', '${_stats!['kills']}'),
+              _StatRow('Deaths', '${_stats!['deaths']}'),
+              _StatRow('KDA', (_stats!['kda'] as num).toStringAsFixed(2)),
+              _StatRow('Damage / Min', (_stats!['damagePerMinute'] as num).toStringAsFixed(1)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatRow(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.black)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
   }
 }
