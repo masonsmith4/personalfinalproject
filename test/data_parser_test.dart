@@ -8,7 +8,8 @@ void main() {
     final identifier = DataParser();
     final player = identifier.searchPlayerId(playerData,
         'nvPdRr7ZMzx5uMWQ9Wj90K5KtekgFysWazHv6BTXScrt-5lDO6YXI-VzBpSkQT7q01aw-hq63nOR2A');
-    expect(player['puuid'],
+    expect(player, isNotNull);
+    expect(player!['puuid'],
         equals('nvPdRr7ZMzx5uMWQ9Wj90K5KtekgFysWazHv6BTXScrt-5lDO6YXI-VzBpSkQT7q01aw-hq63nOR2A')
     );
   });
