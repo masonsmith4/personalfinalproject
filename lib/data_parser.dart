@@ -19,4 +19,13 @@ class DataParser {
       'champExperience': participant['champExperience'],
     };
   }
+
+  Map<String, dynamic>? pullGameStatistics(Map<String, dynamic> participant) {
+    return {
+      'kills': participant['kills'],
+      'deaths': participant['deaths'],
+      'kda': participant['challenges']['kda'],
+      'damagePerMinute': participant['challenges']['damagePerMinute'],
+    };
+  }
 }
