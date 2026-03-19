@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
-import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/url_builder.dart';
-import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/riot_api_parser.dart';
+import 'url_builder.dart';
+import 'riot_api_parser.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EsportsService {

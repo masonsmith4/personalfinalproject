@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/esports_services.dart';
-import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/data_parser.dart';
+import 'esports_services.dart';
+import 'data_parser.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
