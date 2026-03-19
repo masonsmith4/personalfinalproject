@@ -1,20 +1,17 @@
-# finalproject_npinkelton_ksmith_nsmith_msmith
+# League of Legends Statistic Tracker
 
-A new Flutter project.
+A Flutter application that allows Ball State ESports members to search for player statistics 
+within the League of Legends video game. Upon opening the application, as long as the user has
+a username and corresponding tag number available, they can search for any player within the 
+database and receive their stats.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Authors
+- Korie Smith
+- Nathan Smith
+- Mason Smith
+- Nathan Pinkelton
 
 ## Resources 
-https://pub.dev/documentation/test/latest/test/setUp.html
-https://pub.dev/packages/mockito
+- https://pub.dev/documentation/test/latest/test/setUp.html
+- https://pub.dev/packages/mockito
+- https://dart.dev/docs 
