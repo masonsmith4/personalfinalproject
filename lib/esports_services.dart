@@ -4,7 +4,7 @@ import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/riot_api_parser.dar
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class EsportsService {
-  final _urlBuilder = UrlBuilder()
+  final _urlBuilder = UrlBuilder();
   final _parser = RiotApiParser();
 
   Map<String, String> get _headers =>
