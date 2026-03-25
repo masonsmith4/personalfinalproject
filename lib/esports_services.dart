@@ -2,13 +2,32 @@ import 'package:http/http.dart' as http;
 import 'url_builder.dart';
 import 'riot_api_parser.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:logger/logger.dart';
+
+class NetworkException implements Exception {
+  final String message;
+  NetworkException(this.message);
+
+  @override
+  String toString() => 'Network Exception: $message';
+}
 
 class EsportsService {
   final _urlBuilder = UrlBuilder();
   final _parser = RiotApiParser();
+  final _logger = Logger();
 
   Map<String, String> get _headers =>
       {'X-Riot-Token': dotenv.env['RIOT_API_KEY'] ?? ''};
+
+  Future<http.Response> _sendRequest(Uri url) async {
+    try {
+      return await http.get(url, headers: _headers);
+    } catch (e) {
+      _logger.e('Network error: $e');
+      rethrow;
+    }
+  }
 
   //Returns the puuid of the user as a String
   Future<String> requestIdentification(String username, String tag) async {
