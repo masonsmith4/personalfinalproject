@@ -28,7 +28,7 @@ class EsportsService {
       rethrow;
     }
   }
-
+//
   //Returns the puuid of the user as a String
   Future<String> requestIdentification(String username, String tag) async {
     final response = await http.get(_urlBuilder.buildUrl(username, tag), headers: _headers);
