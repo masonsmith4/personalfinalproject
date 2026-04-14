@@ -7,10 +7,36 @@ void main() {
     await dotenv.load(fileName: '.env');
   });
 
-  test('Check that network is running', () async {
+  test('Check that network is running',
+      () async {
     final service = EsportsService();
     final puuid = await service.requestIdentification('WombatBaby', 'NA2');
 
     expect(puuid, isNotEmpty);
+  });
+
+  test('PlayerNotFoundException is thrown for invalid player', () async {
+    final service = EsportsService();
+
+    expect(
+          () => service.requestIdentification('InvalidPlayer123456', 'INVALID'),
+      throwsA(isA<PlayerNotFoundException>()),
+    );
+  });
+
+  test('NetworkException is thrown on network error', () async {
+
+    expect(
+      isA<NetworkException>().toString(),
+      contains('NetworkException'),
+    );
+  });
+
+  test('RequestTimeoutException is thrown', () async {
+
+    expect(
+      isA<TimingException>().toString(),
+      contains('TimingException'),
+    );
   });
 }
