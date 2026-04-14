@@ -1,31 +1,44 @@
 import 'dart:convert';
+import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/player_record.dart';
+
+typedef Puuid = String;
 
 class DataParser {
-  Map<String, dynamic>? searchPlayerId(String content, String playerId) {
+  /// Returns the [PlayerRecord] for the participant matching [puuid] in [content],
+  /// with [username] set to the provided value.
+  /// Returns null if no participant with the given [puuid] is found.
+  PlayerRecord? playerByPuuid(
+      String content, {
+        required Puuid puuid,
+        required String username,
+      }) {
     final decoded = jsonDecode(content);
-    final listOfParticipants = decoded['info']['participants'];
-    for (Map<String, dynamic> participant in listOfParticipants) {
-      if (participant['puuid'] == playerId) {
-        return participant;
+    final participants = decoded['info']['participants'] as List<dynamic>;
+    for (final participant in participants) {
+      if (participant['puuid'] == puuid) {
+        return _toPlayerRecord(
+          participant as Map<String, dynamic>,
+          username: username,
+        );
       }
     }
     return null;
   }
 
-  Map<String, dynamic>? pullCharacterInfo(Map<String, dynamic> participant) {
-    return {
-      'championName': participant['championName'],
-      'champLevel': participant['champLevel'],
-      'champExperience': participant['champExperience'],
-    };
-  }
-
-  Map<String, dynamic>? pullGameStatistics(Map<String, dynamic> participant) {
-    return {
-      'kills': participant['kills'],
-      'deaths': participant['deaths'],
-      'kda': participant['challenges']['kda'],
-      'damagePerMinute': participant['challenges']['damagePerMinute'],
-    };
+  PlayerRecord _toPlayerRecord(
+      Map<String, dynamic> player, {
+        required String username,
+      }) {
+    return PlayerRecord(
+      puuid: player['puuid'] as String,
+      username: username,
+      championName: player['championName'] as String,
+      championLevel: player['champLevel'] as int,
+      championExperience: player['champExperience'] as int,
+      kills: player['kills'] as int,
+      deaths: player['deaths'] as int,
+      kda: (player['challenges']['kda'] as num).toDouble(),
+      damagePerMinute: (player['challenges']['damagePerMinute'] as num).toDouble(),
+    );
   }
 }

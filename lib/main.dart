@@ -1,9 +1,30 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'esports_services.dart';
-import 'data_parser.dart';
+import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/player_record.dart';
+import 'package:finalproject_npinkelton_ksmith_nsmith_msmith/esports_services.dart';
+
+/// Returns a display-ready string for the given [stat] label, reading from [player].
+String formattedStatRow(String stat, PlayerRecord player) {
+  switch (stat) {
+    case 'Champion': return player.championName;
+    case 'Champion Level': return '${player.championLevel}';
+    case 'Kills': return '${player.kills}';
+    case 'Deaths': return '${player.deaths}';
+    case 'KDA': return player.kda.toStringAsFixed(2);
+    case 'Damage / Min': return player.damagePerMinute.toStringAsFixed(1);
+    default: return '';
+  }
+}
+
+const _statLabels = [
+  'Champion',
+  'Champion Level',
+  'Kills',
+  'Deaths',
+  'KDA',
+  'Damage / Min',
+];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,40 +52,52 @@ class EligibilityScreen extends StatefulWidget {
 }
 
 class _EligibilityScreenState extends State<EligibilityScreen> {
+  static const int _maxPlayers = 6;
   final _usernameController = TextEditingController();
   final _tagController = TextEditingController();
   final _service = EsportsService();
-  final _parser = DataParser();
+  final _playerList = <PlayerRecord>[];
 
   bool _loading = false;
-  String? _message;
-  Map<String, dynamic>? _stats;
-  Map<String, dynamic>? _charInfo;
+  String? _errorMessage;
 
-  Future<void> _lookup() async {
-    setState(() { _loading = true; _message = null; _stats = null; _charInfo = null; });
+  Future<void> _search() async {
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
 
     try {
-      final puuid = await _service.requestIdentification(
-          _usernameController.text.trim(), _tagController.text.trim());
-      final matchIds = await _service.requestMatchList(puuid);
-      final matchData = await _service.requestMatchData(matchIds.first);
-      final participant = _parser.searchPlayerId(jsonEncode(matchData), puuid)!;
-
-      setState(() {
-        _stats = _parser.pullGameStatistics(participant);
-        _charInfo = _parser.pullCharacterInfo(participant);
-        _message = 'To enter the Spring Invitational, your KDA must be above 2.0.';
-      });
+      final player = await _service.requestPlayerData(
+        _usernameController.text.trim(),
+        _tagController.text.trim(),
+      );
+      setState(() => _playerList.add(player));
+    } on PlayerNotFoundException catch (e) {
+      setState(() => _errorMessage = e.message);
+    } on NetworkException catch (e) {
+      setState(() => _errorMessage = e.message);
+    } on TimingException catch (e) {
+      setState(() => _errorMessage = e.message);
+    } on UnexpectedResultException catch (e) {
+      setState(() => _errorMessage = e.message);
     } catch (e) {
-      setState(() => _message = 'Error: Name / Tag not found');
+      setState(() => _errorMessage = 'An unexpected error occurred. Please try again.');
     } finally {
       setState(() => _loading = false);
     }
   }
 
+  void _clearPlayerList() {
+    setState(() {
+      _playerList.clear();
+      _errorMessage = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool atCapacity = _playerList.length >= _maxPlayers;
     return Scaffold(
       appBar: AppBar(title: const Text('Tournament Eligibility')),
       body: Padding(
@@ -72,38 +105,46 @@ class _EligibilityScreenState extends State<EligibilityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Try it with: WombatBaby #NA2',
-                style: TextStyle(color: Colors.black, fontSize: 13)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+            _PlayerInputSection(
+              hint: 'Try it with: WombatBaby, NA2',
+              usernameController: _usernameController,
+              tagController: _tagController,
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _tagController,
-              decoration: const InputDecoration(labelText: 'Tag'),
+            const SizedBox(height: 16),
+            Text(
+              'Players added: ${_playerList.length} / $_maxPlayers',
+              style: TextStyle(
+                color: atCapacity ? Colors.red : Colors.grey,
+                fontWeight: atCapacity ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _loading ? null : _lookup,
+              onPressed: (_loading || atCapacity) ? null : _search,
               child: _loading
                   ? const CircularProgressIndicator()
                   : const Text('Search Stats'),
             ),
-            if (_message != null) ...[
-              const SizedBox(height: 24),
-              Text(_message!, style: const TextStyle(fontSize: 14, color: Colors.black)),
-            ],
-            if (_stats != null && _charInfo != null) ...[
+            if (_errorMessage != null) ...[
               const SizedBox(height: 16),
-              _StatRow('Champion', '${_charInfo!['championName']}'),
-              _StatRow('Champion Level', '${_charInfo!['champLevel']}'),
-              _StatRow('Champion XP', '${_charInfo!['champExperience']}'),
-              _StatRow('Kills', '${_stats!['kills']}'),
-              _StatRow('Deaths', '${_stats!['deaths']}'),
-              _StatRow('KDA', (_stats!['kda'] as num).toStringAsFixed(2)),
-              _StatRow('Damage / Min', (_stats!['damagePerMinute'] as num).toStringAsFixed(1)),
+              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+            ],
+            const SizedBox(height: 16),
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: _StatsTable(players: _playerList),
+                ),
+              ),
+            ),
+            if (_playerList.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _clearPlayerList,
+                child: const Text('Clear Player List'),
+              ),
             ],
           ],
         ),
@@ -112,22 +153,81 @@ class _EligibilityScreenState extends State<EligibilityScreen> {
   }
 }
 
-class _StatRow extends StatelessWidget {
-  final String label;
-  final String value;
-  const _StatRow(this.label, this.value);
+class _PlayerInputSection extends StatelessWidget {
+  final String hint;
+  final TextEditingController usernameController;
+  final TextEditingController tagController;
+
+  const _PlayerInputSection({
+    required this.hint,
+    required this.usernameController,
+    required this.tagController,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.black)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(hint, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: usernameController,
+          decoration: const InputDecoration(labelText: 'Username'),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: tagController,
+          decoration: const InputDecoration(labelText: 'Tag'),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatsTable extends StatelessWidget {
+  final List<PlayerRecord> players;
+
+  const _StatsTable({required this.players});
+
+  @override
+  Widget build(BuildContext context) {
+    if (players.isEmpty) return const SizedBox.shrink();
+
+    return Table(
+      defaultColumnWidth: const IntrinsicColumnWidth(),
+      children: [
+        TableRow(
+          children: [
+            const SizedBox(),
+            for (final player in players)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Text(
+                  player.username,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+          ],
+        ),
+        for (final stat in _statLabels)
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(stat, style: const TextStyle(color: Colors.grey)),
+              ),
+              for (final player in players)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text(
+                    formattedStatRow(stat, player),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
+          ),
+      ],
     );
   }
 }
